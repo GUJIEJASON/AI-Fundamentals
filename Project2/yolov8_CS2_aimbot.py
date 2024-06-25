@@ -114,7 +114,7 @@ def calculate_position_body(xyxy):
 
 def view_imgs(img0, boxes, confs, classes, model_names, scale_x, scale_y):
     """
-    弹窗展示结果，按 'q' 键退出
+    弹窗展示结果
     """
     display_img = cv2.resize(img0, (640, 400))  # 缩放图像
 
@@ -132,9 +132,9 @@ def view_imgs(img0, boxes, confs, classes, model_names, scale_x, scale_y):
         cv2.putText(display_img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
     cv2.imshow('ws demo', display_img)
-    if (cv2.waitKey(1) & 0xFF) == ord('q'):
-        cv2.destroyAllWindows()
-        exit(0)
+    # if (cv2.waitKey(1) & 0xFF) == ord('q'):
+    #     cv2.destroyAllWindows()
+    #     exit(0)
 
 def move_mouse(mouse_pynput, aim_persons_center, aim_heads_center):
     """
@@ -311,7 +311,7 @@ class AimYolo:
 
 def parseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='models/v8s_180_epoch.pt', help='model.pt path')
+    parser.add_argument('--weights', type=str, default='weight/v8s_180.pt', help='model.pt path')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.6, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
