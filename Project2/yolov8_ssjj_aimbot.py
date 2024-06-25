@@ -242,23 +242,35 @@ class AimYolo:
                 for box in enumerate(boxes):
                     xyxy = box[1]
                     # print(classes[box[0]])
-                    if (self.team == 'T' or self.team == 'A'):
+                    if (self.team == 'T'):
                         if classes[box[0]] == 2:
                             center_x, center_y = calculate_position(xyxy)
                             aim_heads_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"]])
+
                         elif classes[box[0]] == 1:
                             # aim_persons_xy.append([xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
                             center_x, center_y = calculate_position_body(xyxy)
                             aim_persons_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"],xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
-                    elif (self.team == 'CT' or self.team == 'A'):
+
+                    elif (self.team == 'CT'):
                         if classes[box[0]] == 5:
                             center_x, center_y = calculate_position(xyxy)
                             aim_heads_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"]])
+
                         elif classes[box[0]] == 4:
                             # aim_persons_xy.append([xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
                             center_x, center_y = calculate_position_body(xyxy)
                             aim_persons_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"], xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
 
+                    else:
+                        if classes[box[0]] == 5 or classes[box[0]] == 2:
+                            center_x, center_y = calculate_position(xyxy)
+                            aim_heads_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"]])
+
+                        elif classes[box[0]] == 4 or classes[box[0]] == 1:
+                            # aim_persons_xy.append([xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
+                            center_x, center_y = calculate_position_body(xyxy)
+                            aim_persons_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"], xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
                 # 调用鼠标移动函数
                 # if len(aim_heads_center) > 0:
                 #     move_mouse(self.mouse_control, aim_heads_center)

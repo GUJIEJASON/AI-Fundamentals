@@ -105,7 +105,7 @@ def calculate_position(xyxy):
 
 def calculate_position_body(xyxy):
     """
-    计算目标中心坐标
+    计算身体坐标
     """
     c1, c2 = (xyxy[0], xyxy[1]), (xyxy[2], xyxy[3])
     center_x = int((c2[0] + c1[0]) / 2)
@@ -138,22 +138,25 @@ def view_imgs(img0, boxes, confs, classes, model_names, scale_x, scale_y):
 
 def move_mouse(mouse_pynput, aim_persons_center, aim_heads_center):
     """
-    移动鼠标到距离当前鼠标位置最近的目标中心点
+    移动鼠标
     """
     if aim_persons_center:
         current_x, current_y = mouse_pynput.position
         # current_x, current_y = pyautogui.position()
         best_position = None
         best_area = None
+
         for aim_person in aim_persons_center:
             dist = ((aim_person[0] - current_x) ** 2 + (aim_person[1] - current_y) ** 2) ** .5
             if not best_position or dist < best_position[1]:
                 best_position = (aim_person, dist)
-                best_area = (aim_person[2], aim_person[3], aim_person[4], aim_person[5]) 
+                best_area = (aim_person[2], aim_person[3], aim_person[4], aim_person[5])
+
         for aim_head in aim_heads_center:
             if aim_head[0] > best_area[0] and aim_head[1] < best_area[1] and aim_head[0] < best_area[2] and aim_head[1] > best_area[3]:
                 best_position = (aim_head, 0)
                 break
+
         # pydirectinput.moveTo(int(best_position[0][0]), int(best_position[0][1]), duration=0.5)
         # pyautogui.moveTo(int(best_position[0][0]), int(best_position[0][1]))
         # pydirectinput.moveRel(int(best_position[0][0])-current_x, int(best_position[0][1])-current_y,relative=True)
@@ -184,7 +187,7 @@ class AimYolo:
         self.mouse_control = mouse.Controller()
         self.listener = keyboard.Listener(on_press=self.on_press)
         self.listener.start()
-        self.mouse_move_enabled = False
+        self.mouse_move_enabled = True
 
         # 初始化阵营选择
         self.team_selected = False
@@ -214,7 +217,7 @@ class AimYolo:
      # 键盘按键监听回调函数
     def on_press(self, key):
         try:
-            if key == Key.alt_l:  
+            if key == Key.f8:
                 self.mouse_move_enabled = not self.mouse_move_enabled
                 print(f"Mouse movement {'enabled' if self.mouse_move_enabled else 'disabled'}")
         except AttributeError:
@@ -261,22 +264,36 @@ class AimYolo:
                 for box in enumerate(boxes):
                     xyxy = box[1]
                     # print(classes[box[0]])
-                    if (self.team == 'T' or self.team == 'A'):
+                    if (self.team == 'T'):
                         if classes[box[0]] == 2:
                             center_x, center_y = calculate_position(xyxy)
                             aim_heads_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"]])
+
                         elif classes[box[0]] == 1:
                             # aim_persons_xy.append([xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
                             center_x, center_y = calculate_position_body(xyxy)
                             aim_persons_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"],xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
-                    elif (self.team == 'CT' or self.team == 'A'):
+
+                    elif (self.team == 'CT'):
                         if classes[box[0]] == 5:
                             center_x, center_y = calculate_position(xyxy)
                             aim_heads_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"]])
+
                         elif classes[box[0]] == 4:
                             # aim_persons_xy.append([xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
                             center_x, center_y = calculate_position_body(xyxy)
                             aim_persons_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"], xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
+
+                    else:
+                        if classes[box[0]] == 5 or classes[box[0]] == 2:
+                            center_x, center_y = calculate_position(xyxy)
+                            aim_heads_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"]])
+
+                        elif classes[box[0]] == 4 or classes[box[0]] == 1:
+                            # aim_persons_xy.append([xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
+                            center_x, center_y = calculate_position_body(xyxy)
+                            aim_persons_center.append([center_x * scale_w1 + self.bounding_box["left"], center_y * scale_h1 + self.bounding_box["top"], xyxy[0], xyxy[1], xyxy[2], xyxy[3]])
+
 
                 # 调用鼠标移动函数
                 # if len(aim_heads_center) > 0:
@@ -294,7 +311,7 @@ class AimYolo:
 
 def parseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='weight/v8s_180_epoch.pt', help='model.pt path')
+    parser.add_argument('--weights', type=str, default='models/v8s_180_epoch.pt', help='model.pt path')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.6, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
